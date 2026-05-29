@@ -1,5 +1,5 @@
 // Service Worker — 离线缓存 + 自动更新
-const CACHE = 'mrb-v1';
+const CACHE = 'mrb-v2';
 const TO_CACHE = ['./', './index.html', './manifest.json', './icon-192.png', './icon-512.png'];
 
 // 安装：预缓存核心文件
