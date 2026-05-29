@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>演出经纪人资格考试 - 在线刷题系统</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #f5f5f5; --card: #fff; --text: #333; --text2: #666; --text3: #999;
+  --primary: #2563eb; --primary-light: #eff6ff; --success: #16a34a; --danger: #dc2626;
+  --warning: #f59e0b; --border: #e5e7eb; --shadow: 0 1px 3px rgba(0,0,0,.08);
+  --radius: 12px;
+}
+body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; min-height: 100vh; padding-bottom: env(safe-area-inset-bottom); }
+.container { max-width: 720px; margin: 0 auto; padding: 12px 16px; }
+
+/* Header */
+.header { background: var(--card); border-bottom: 1px solid var(--border); padding: 12px 16px; position: sticky; top: 0; z-index: 100; box-shadow: var(--shadow); }
+.header-inner { max-width: 720px; margin: 0 auto; }
+.header h1 { font-size: 17px; font-weight: 700; margin-bottom: 8px; }
+.header-row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+
+/* Selects & buttons */
+.sel { padding: 7px 12px; border: 1px solid var(--border); border-radius: 8px; font-size: 14px; background: var(--card); color: var(--text); cursor: pointer; outline: none; -webkit-appearance: none; }
+.sel:focus { border-color: var(--primary); }
+.btn { padding: 7px 14px; border: 1px solid var(--border); border-radius: 8px; font-size: 14px; cursor: pointer; background: var(--card); color: var(--text); white-space: nowrap; transition: all .15s; }
+.btn:active { transform: scale(.97); }
+.btn-primary { background: var(--primary); color: #fff; border-color: var(--primary); font-weight: 600; }
+.btn-success { background: var(--success); color: #fff; border-color: var(--success); }
+.btn-danger { background: var(--danger); color: #fff; border-color: var(--danger); }
+.btn-warning { background: var(--warning); color: #fff; border-color: var(--warning); }
+.btn-outline { background: transparent; }
+.btn-sm { padding: 4px 10px; font-size: 12px; }
+
+/* Progress */
+.progress-wrap { margin-top: 8px; }
+.progress-info { display: flex; justify-content: space-between; font-size: 12px; color: var(--text2); margin-bottom: 4px; }
+.progress-bar { height: 5px; background: var(--border); border-radius: 3px; overflow: hidden; }
+.progress-fill { height: 100%; background: var(--primary); border-radius: 3px; transition: width .3s; }
+
+/* Question card */
+.card { background: var(--card); border-radius: var(--radius); padding: 20px; margin-top: 12px; box-shadow: var(--shadow); }
+.q-meta { display: flex; gap: 8px; align-items: center; margin-bottom: 10px; flex-wrap: wrap; }
+.q-badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 12px; font-weight: 600; }
+.q-badge.single { background: #eff6ff; color: #2563eb; }
+.q-badge.multi { background: #fef3c7; color: #b45309; }
+.q-badge.judge { background: #f0fdf4; color: #15803d; }
+.q-id { font-size: 13px; color: var(--text3); }
+.q-text { font-size: 16px; line-height: 1.7; margin-bottom: 14px; word-break: break-word; }
+
+/* Options */
+.options { list-style: none; }
+.option { display: flex; align-items: flex-start; padding: 11px 14px; margin-bottom: 8px; border: 2px solid var(--border); border-radius: 10px; cursor: pointer; transition: all .15s; font-size: 15px; line-height: 1.5; }
+.option:active { transform: scale(.99); }
+.option-label { font-weight: 700; min-width: 28px; color: var(--primary); flex-shrink: 0; }
+.option-text { flex: 1; }
+.option.selected { border-color: var(--primary); background: var(--primary-light); }
+.option.correct { border-color: var(--success); background: #f0fdf4; }
+.option.correct .option-label { color: var(--success); }
+.option.wrong { border-color: var(--danger); background: #fef2f2; }
+.option.wrong .option-label { color: var(--danger); }
+.option.show-answer { border-color: var(--success); background: #f0fdf4; }
+
+/* Judge buttons */
+.judge-btns { display: flex; gap: 12px; }
+.judge-btn { flex: 1; padding: 16px; border: 2px solid var(--border); border-radius: 12px; text-align: center; font-size: 22px; font-weight: 700; cursor: pointer; transition: all .15s; }
+.judge-btn:active { transform: scale(.97); }
+.judge-btn.judge-yes { color: var(--success); }
+.judge-btn.judge-no { color: var(--danger); }
+.judge-btn.selected.judge-yes { border-color: var(--success); background: #f0fdf4; }
+.judge-btn.selected.judge-no { border-color: var(--danger); background: #fef2f2; }
+.judge-btn.correct { border-color: var(--success); background: #f0fdf4; }
+.judge-btn.wrong { border-color: var(--danger); background: #fef2f2; }
+
+/* Answer reveal */
+.answer-section { margin-top: 16px; padding: 14px; background: #f9fafb; border-radius: 10px; border: 1px solid var(--border); display: none; }
+.answer-section.show { display: block; }
+.answer-label { font-weight: 700; color: var(--success); margin-bottom: 6px; font-size: 15px; }
+.answer-label.wrong-ans { color: var(--danger); }
+.answer-explain { font-size: 14px; color: var(--text2); line-height: 1.6; margin-top: 6px; }
+.user-answer { font-size: 13px; color: var(--warning); margin-top: 4px; }
+
+/* Actions */
+.actions { display: flex; gap: 8px; margin-top: 16px; flex-wrap: wrap; }
+.actions .btn { flex: 1; min-width: 80px; text-align: center; padding: 11px 12px; font-size: 15px; }
+
+/* Empty state */
+.empty { text-align: center; padding: 60px 20px; color: var(--text2); }
+.empty h2 { font-size: 20px; margin-bottom: 8px; }
+.empty p { font-size: 14px; }
+
+/* Stats bar */
+.stats-bar { display: flex; gap: 12px; padding: 12px 0; font-size: 13px; color: var(--text2); flex-wrap: wrap; }
+.stat { background: var(--card); padding: 8px 14px; border-radius: 8px; box-shadow: var(--shadow); cursor: pointer; user-select: none; transition: all .2s; text-align: center; }
+.stat:hover { transform: translateY(-1px); box-shadow: 0 2px 12px rgba(0,0,0,.15); }
+.stat.active { outline: 2px solid var(--primary); outline-offset: -2px; }
+.stat-val { font-weight: 700; font-size: 18px; display: block; }
+.stat-label { font-size: 11px; color: var(--text2); }
+.stat-val.green { color: var(--success); }
+.stat-val.red { color: var(--danger); }
+.stat-val.blue { color: var(--primary); }
+
+/* Review mode */
+.review-item { background: var(--card); border-radius: var(--radius); padding: 14px; margin-bottom: 10px; box-shadow: var(--shadow); }
+.review-item .q-text { font-size: 14px; margin-bottom: 6px; }
+.review-item .q-meta { margin-bottom: 4px; }
+
+/* Responsive */
+@media (max-width: 480px) {
+  .container { padding: 8px 10px; }
+  .card { padding: 14px; }
+  .q-text { font-size: 15px; }
+  .option { padding: 10px 12px; font-size: 14px; }
+  .btn { padding: 9px 10px; font-size: 14px; }
+  .header-row { gap: 4px; }
+  .sel { padding: 6px 8px; font-size: 13px; }
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-inner">
+    <h1>演出经纪人资格考试 - 刷题系统</h1>
+    <div class="header-row">
+      <select class="sel" id="subjectSelect" onchange="switchSubject()">
+        <option value="思想政治与法律基础">科目一：思想政治与法律基础</option>
+        <option value="演出市场政策与经纪实务">科目二：演出市场政策与经纪实务</option>
+      </select>
+      <select class="sel" id="typeFilter" onchange="applyFilter()">
+        <option value="全部">全部题型</option>
+        <option value="单选">仅单选题</option>
+        <option value="多选">仅多选题</option>
+        <option value="判断">仅判断题</option>
+      </select>
+      <button class="btn btn-outline btn-sm" onclick="toggleMode()" id="modeBtn">错题模式</button>
+      <button class="btn btn-outline btn-sm" onclick="resetProgress()">重置进度</button>
+    </div>
+    <div class="progress-wrap">
+      <div class="progress-info"><span id="progressLabel">已刷 0 / 600</span><span id="correctLabel">正确 0</span></div>
+      <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+    </div>
+  </div>
+</div>
+
+<div class="container" id="app">
+  <div class="stats-bar" id="statsBar"></div>
+  <div id="questionArea"></div>
+  <div class="actions" id="actionsBar"></div>
+</div>
+
+<script src="data/思想政治与法律基础.js"></script>
+<script src="data/演出市场政策与经纪实务.js"></script>
+
+<script>
+// ========== State ==========
+const SUBJECTS = {
+  '思想政治与法律基础': examData_思想政治与法律基础 || [],
+  '演出市场政策与经纪实务': examData_演出市场政策与经纪实务 || []
+};
+const STORAGE_KEY = 'exam_broker_progress_v2';
+const STORAGE_KEY_UI = 'exam_broker_ui_v2';
+
+let currentSubject = '思想政治与法律基础';
+let typeFilter = '全部';
+let statFilter = 'all'; // 'all' | 'done' | 'correct' | 'wrong'
+let currentIndex = 0;
+let filteredQuestions = [];
+let userAnswer = null;
+let answered = false;
+
+// Progress: { "subject|id": { marked, correct } }
+let progress = {};
+
+function loadProgress() {
+  try { progress = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; }
+  catch(e) { progress = {}; }
+}
+function saveProgress() { localStorage.setItem(STORAGE_KEY, JSON.stringify(progress)); }
+function loadUI() { try { return JSON.parse(localStorage.getItem(STORAGE_KEY_UI)) || {}; } catch(e) { return {}; } }
+function persistUI() { localStorage.setItem(STORAGE_KEY_UI, JSON.stringify({sf: statFilter, ci: currentIndex, cs: currentSubject})); }
+
+function getKey(q) { return currentSubject + '|' + q.id; }
+function getAllKeys() { return filteredQuestions.map(q => currentSubject + '|' + q.id); }
+
+// ========== Filter ==========
+function getQuestions() {
+  let qs = SUBJECTS[currentSubject] || [];
+  if (typeFilter !== '全部') qs = qs.filter(q => q.t === typeFilter);
+  return qs;
+}
+
+function getWrongQuestions() {
+  let all = getQuestions();
+  return all.filter(q => {
+    let k = currentSubject + '|' + q.id;
+    return progress[k] && progress[k].marked && !progress[k].correct;
+  });
+}
+
+function getFilteredQuestions() {
+  let qs = getQuestions();
+  if (statFilter === 'all') return qs;
+  return qs.filter(q => {
+    let k = getKey(q);
+    if (statFilter === 'done') return !!progress[k];
+    if (statFilter === 'correct') return progress[k] && progress[k].correct;
+    if (statFilter === 'wrong') return progress[k] && progress[k].marked && !progress[k].correct;
+    return true;
+  });
+}
+
+function setStatFilter(f) {
+  if (statFilter === f) return;
+  statFilter = f;
+  persistUI();
+  refreshList();
+}
+
+function applyFilter() {
+  typeFilter = document.getElementById('typeFilter').value;
+  refreshList();
+}
+
+function switchSubject() {
+  currentSubject = document.getElementById('subjectSelect').value;
+  persistUI();
+  refreshList();
+}
+
+function toggleMode() {
+  if (statFilter === 'wrong') {
+    setStatFilter('all');
+  } else {
+    let wrong = getWrongQuestions();
+    if (wrong.length === 0) { alert('暂无错题记录！'); return; }
+    setStatFilter('wrong');
+  }
+  let btn = document.getElementById('modeBtn');
+  btn.textContent = statFilter === 'wrong' ? '正常模式' : '错题模式';
+  btn.className = statFilter === 'wrong' ? 'btn btn-warning btn-sm' : 'btn btn-outline btn-sm';
+}
+
+function refreshList() {
+  filteredQuestions = getFilteredQuestions();
+  currentIndex = 0;
+  userAnswer = null;
+  answered = false;
+  renderAll();
+}
+
+// ========== Render ==========
+function renderAll() {
+  renderStats();
+  if (filteredQuestions.length === 0) {
+    let emptyMsg = statFilter==='wrong'?'没有错题':statFilter==='correct'?'没有做对的题':statFilter==='done'?'还没有刷过题':'没有题目';
+    let emptyHint = statFilter==='wrong'?'继续刷题，错题会出现在这里':statFilter==='correct'?'继续刷题，做对的题会出现在这里':statFilter==='done'?'开始刷题，做过的题会出现在这里':'请选择题型筛选';
+    document.getElementById('questionArea').innerHTML = '<div class="empty"><h2>'+emptyMsg+'</h2><p>'+emptyHint+'</p></div>';
+    document.getElementById('actionsBar').innerHTML = '';
+    return;
+  }
+  renderQuestion();
+  renderActions();
+  updateProgress();
+}
+
+function renderStats() {
+  let total = getQuestions().length;
+  let wrongTotal = getWrongQuestions().length;
+  let done = 0, correct = 0;
+  getAllKeys().forEach(k => { if (progress[k]) { done++; if (progress[k].correct) correct++; } });
+  document.getElementById('statsBar').innerHTML =
+    '<div class="stat'+(statFilter==='all'?' active':'')+'" onclick="setStatFilter(\'all\')"><span class="stat-val blue">'+total+'</span><span class="stat-label">题库</span></div>'+
+    '<div class="stat'+(statFilter==='done'?' active':'')+'" onclick="setStatFilter(\'done\')"><span class="stat-val">'+done+'</span><span class="stat-label">已刷</span></div>'+
+    '<div class="stat'+(statFilter==='correct'?' active':'')+'" onclick="setStatFilter(\'correct\')"><span class="stat-val green">'+correct+'</span><span class="stat-label">正确</span></div>'+
+    '<div class="stat'+(statFilter==='wrong'?' active':'')+'" onclick="setStatFilter(\'wrong\')"><span class="stat-val red">'+wrongTotal+'</span><span class="stat-label">错题</span></div>';
+}
+
+function updateProgress() {
+  let total = getQuestions().length;
+  let done = 0, correct = 0;
+  getAllKeys().forEach(k => { if (progress[k]) { done++; if (progress[k].correct) correct++; } });
+  let pct = total > 0 ? (done / total * 100) : 0;
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressLabel').textContent = `已刷 ${done} / ${total}`;
+  document.getElementById('correctLabel').textContent = `正确 ${correct}`;
+  document.getElementById('subjectSelect').value = currentSubject;
+}
+
+function renderQuestion() {
+  if (currentIndex >= filteredQuestions.length) {
+    document.getElementById('questionArea').innerHTML =
+      '<div class="empty"><h2>本轮已完成</h2><p>' + (statFilter==='wrong'?'错题已全部复习完毕！':statFilter==='correct'?'做对的题已全部复习完毕！':statFilter==='done'?'做过的题已全部复习完毕！':'所有题目已刷完！') + '</p></div>';
+    return;
+  }
+  let q = filteredQuestions[currentIndex];
+  let total = filteredQuestions.length;
+  let typeMap = { '单选': 'single', '多选': 'multi', '判断': 'judge' };
+  let typeClass = typeMap[q.t] || '';
+  let typeName = q.t || '未知';
+
+  let html = `<div class="card">
+    <div class="q-meta">
+      <span class="q-badge ${typeClass}">${typeName}</span>
+      <span class="q-id">第 ${currentIndex + 1} / ${total} 题 · ${q.n || ''}号</span>
+      ${q.topic ? `<span class="q-id">${q.topic}</span>` : ''}
+    </div>
+    <div class="q-text">${escapeHtml(q.q)}</div>`;
+
+  if (q.t === '判断') {
+    html += `<div class="judge-btns">
+      <div class="judge-btn judge-yes${userAnswer === '√' ? ' selected' : ''}" onclick="selectJudge('√')">✓ 正确</div>
+      <div class="judge-btn judge-no${userAnswer === '×' ? ' selected' : ''}" onclick="selectJudge('×')">✗ 错误</div>
+    </div>`;
+  } else if (q.o && q.o.length > 0) {
+    html += '<div class="options">';
+    q.o.forEach((opt, i) => {
+      let cls = '';
+      if (answered) {
+        if (q.a.includes(opt.label)) cls = ' show-answer';
+        if (userAnswer && userAnswer.includes(opt.label) && !q.a.includes(opt.label)) cls = ' wrong';
+      } else if (userAnswer && userAnswer.includes(opt.label)) {
+        cls = ' selected';
+      }
+      html += `<div class="option${cls}" onclick="selectOption('${opt.label}')">
+        <span class="option-label">${opt.label}.</span>
+        <span class="option-text">${escapeHtml(opt.text)}</span>
+      </div>`;
+    });
+    html += '</div>';
+  }
+
+  // Answer area
+  if (answered) {
+    let isCorrect = checkAnswer(userAnswer, q.a);
+    html += `<div class="answer-section show">
+      <div class="answer-label${isCorrect ? '' : ' wrong-ans'}">${isCorrect ? '✓ 回答正确' : '✗ 回答错误'} · 正确答案: ${q.a}</div>`;
+    if (userAnswer && !isCorrect) {
+      html += `<div class="user-answer">你的答案: ${userAnswer}</div>`;
+    }
+    if (q.e) html += `<div class="answer-explain">${escapeHtml(q.e)}</div>`;
+    html += '</div>';
+  }
+
+  html += '</div>';
+  document.getElementById('questionArea').innerHTML = html;
+}
+
+function escapeHtml(s) {
+  if (!s) return '';
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function selectOption(label) {
+  if (answered) return;
+  let q = filteredQuestions[currentIndex];
+  if (!q) return;
+  if (q.t === '多选') {
+    if (!userAnswer) userAnswer = '';
+    if (userAnswer.includes(label)) {
+      userAnswer = userAnswer.replace(label, '');
+    } else {
+      userAnswer += label;
+      userAnswer = userAnswer.split('').sort().join('');
+    }
+  } else {
+    userAnswer = label;
+  }
+  renderQuestion();
+}
+
+function selectJudge(val) {
+  if (answered) return;
+  userAnswer = val;
+  renderQuestion();
+}
+
+function renderActions() {
+  let html = '';
+  if (filteredQuestions.length === 0 || currentIndex >= filteredQuestions.length) {
+    html += '<button class="btn btn-primary" onclick="refreshList()">重新开始</button>';
+  } else {
+    if (!answered) {
+      html += '<button class="btn btn-primary" onclick="revealAnswer()">显示答案</button>';
+      if (userAnswer) {
+        html += '<button class="btn btn-outline" onclick="userAnswer=null;renderQuestion();">清除选择</button>';
+      }
+    } else {
+      html += '<button class="btn btn-success" onclick="markCorrect()">✓ 我做对了</button>';
+      html += '<button class="btn btn-danger" onclick="markWrong()">✗ 我做错了</button>';
+    }
+    html += '<button class="btn btn-outline" onclick="skipQuestion()">跳过</button>';
+  }
+  document.getElementById('actionsBar').innerHTML = html;
+}
+
+function revealAnswer() {
+  if (answered) return;
+  answered = true;
+  // Auto-mark if user answered
+  if (userAnswer) {
+    let q = filteredQuestions[currentIndex];
+    let isCorrect = checkAnswer(userAnswer, q.a);
+    markQuestion(isCorrect);
+  }
+  renderQuestion();
+  renderActions();
+}
+
+function checkAnswer(user, correct) {
+  if (!user || !correct) return false;
+  // Normalize: sort multi-char answers
+  let u = user.split('').sort().join('');
+  let c = correct.split('').sort().join('');
+  return u === c;
+}
+
+function markQuestion(isCorrect) {
+  let q = filteredQuestions[currentIndex];
+  if (!q) return;
+  let key = getKey(q);
+  progress[key] = { marked: true, correct: isCorrect, time: Date.now() };
+  saveProgress();
+}
+
+function markCorrect() {
+  let q = filteredQuestions[currentIndex];
+  if (!q) return;
+  markQuestion(true);
+  nextQuestion();
+}
+
+function markWrong() {
+  let q = filteredQuestions[currentIndex];
+  if (!q) return;
+  markQuestion(false);
+  nextQuestion();
+}
+
+function skipQuestion() {
+  nextQuestion();
+}
+
+function nextQuestion() {
+  currentIndex++;
+  persistUI();
+  userAnswer = null;
+  answered = false;
+  if (currentIndex >= filteredQuestions.length) {
+    renderAll();
+    if (filteredQuestions.length > 0 && getWrongQuestions().length > 0 && statFilter !== 'wrong') {
+      setTimeout(() => {
+        if (confirm('本轮已完成！是否进入错题复习模式？')) {
+          toggleMode();
+        }
+      }, 300);
+    }
+    return;
+  }
+  renderAll();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function resetProgress() {
+  if (confirm('确定要清除所有刷题进度和错题记录吗？此操作不可恢复。')) {
+    progress = {};
+    saveProgress();
+    statFilter = 'all'; currentIndex = 0;
+    localStorage.setItem(STORAGE_KEY_UI, JSON.stringify({sf: 'all', ci: 0, cs: currentSubject}));
+    refreshList();
+  }
+}
+
+// ========== Keyboard shortcuts ==========
+document.addEventListener('keydown', function(e) {
+  if (e.target.tagName === 'SELECT') return;
+  let q = filteredQuestions[currentIndex];
+  if (!q) return;
+  if (!answered) {
+    if (q.t === '判断') {
+      if (e.key === '1' || e.key === 'y') selectJudge('√');
+      if (e.key === '2' || e.key === 'n') selectJudge('×');
+    } else if (q.o && q.o.length > 0) {
+      let idx = e.key.charCodeAt(0) - 65; // A=0, B=1, ...
+      if (idx >= 0 && idx < q.o.length) selectOption(q.o[idx].label);
+    }
+    if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); revealAnswer(); }
+  } else {
+    if (e.key === '1' || e.key === 'ArrowLeft') markCorrect();
+    if (e.key === '2' || e.key === 'ArrowRight') markWrong();
+    if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); nextQuestion(); }
+  }
+});
+
+// ========== Init ==========
+loadProgress();
+var _savedUI = loadUI();
+if (_savedUI.cs) {
+  currentSubject = _savedUI.cs;
+  document.getElementById('subjectSelect').value = currentSubject;
+}
+if (_savedUI.sf) {
+  statFilter = _savedUI.sf;
+  // 安全校验：恢复'wrong'但无错题时回退到'all'
+  if (statFilter === 'wrong') {
+    var _hasAnyWrong = false;
+    var _keys = Object.keys(progress);
+    for (var _i = 0; _i < _keys.length; _i++) {
+      var _p = progress[_keys[_i]];
+      if (_p && _p.marked && !_p.correct) { _hasAnyWrong = true; break; }
+    }
+    if (!_hasAnyWrong) statFilter = 'all';
+  }
+}
+refreshList();
+// 更新modeBtn状态以匹配恢复的statFilter
+var _mb = document.getElementById('modeBtn');
+if (_mb) {
+  _mb.textContent = statFilter === 'wrong' ? '正常模式' : '错题模式';
+  _mb.className = statFilter === 'wrong' ? 'btn btn-warning btn-sm' : 'btn btn-outline btn-sm';
+}
+if (typeof _savedUI.ci === 'number' && _savedUI.ci > 0 && _savedUI.ci < filteredQuestions.length) {
+  currentIndex = _savedUI.ci;
+  userAnswer = null; answered = false;
+  renderAll();
+}
+</script>
+</body>
+</html>

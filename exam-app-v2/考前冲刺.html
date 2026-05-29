@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no,viewport-fit=cover">
-<title>经纪人刷题库MR专用</title>
+<title>演出经纪人考前冲刺</title>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -179,13 +179,6 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);line-height:
   .sel{padding-right:26px;background-position:right 6px center;background-size:10px;}
 }
 </style>
-<link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#4f46e5">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="apple-mobile-web-app-title" content="经纪人刷题库">
-<link rel="apple-touch-icon" href="icon-192.png">
-<script>if("serviceWorker" in navigator){navigator.serviceWorker.register("sw.js").catch(function(){})}</script>
 </head>
 <body>
 
@@ -327,8 +320,8 @@ var qProgress = {};  // {"subj|id":{marked:bool,correct:bool,time:num}}
 var pProgress = {};  // {"subj|catIdx|itemIdx":true}
 
 function L(k) { try{ return JSON.parse(localStorage.getItem(k))||{}; }catch(e){ return {}; } }
-function persistUI() { var _u = L(STORAGE_KEY_U); _u.sf = statFilter; _u.qi = qIdx; _u.cs = currentSubj; _u.tab = currentTab; S(STORAGE_KEY_U, _u); }
 function S(k,v) { localStorage.setItem(k, JSON.stringify(v)); }
+function persistUI() { var _u = L(STORAGE_KEY_U); _u.sf = statFilter; _u.qi = qIdx; _u.cs = currentSubj; _u.tab = currentTab; S(STORAGE_KEY_U, _u); }
 
 function qKey(q) { return currentSubj+'|'+q.id; }
 function pKey(s,ci,ii) { return s+'|'+ci+'|'+ii; }
@@ -339,6 +332,7 @@ pProgress = L(STORAGE_KEY_P);
 var savedUI = L(STORAGE_KEY_U);
 if (savedUI.sf) {
   statFilter = savedUI.sf;
+  // 安全校验：恢复'wrong'但无错题时回退到'all'
   if (statFilter === 'wrong') {
     var hasAnyWrong = false;
     var keys = Object.keys(qProgress);
@@ -394,12 +388,12 @@ function getFilteredQs() {
 	  });
 	}
 
-	function setStatFilter(f) {
-	  if(statFilter===f) return;
-	  statFilter = f;
-	  persistUI();
-	  refreshExam();
-	}
+function setStatFilter(f) {
+  if(statFilter===f) return;
+  statFilter = f;
+  persistUI();
+  refreshExam();
+}
 
 function onSubjChange() {
   currentSubj = parseInt(document.getElementById('subjSel').value);
